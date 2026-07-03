@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  lint:
+    name: Lint HTML / CSS / JS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint HTML (htmlhint)
+        run: npx --yes htmlhint index.html
+
+      - name: Lint CSS (stylelint)
+        run: npx --yes stylelint "style.css" --config '{"rules":{"block-no-empty":true}}'
+
+      - name: Lint JavaScript (eslint)
+        run: |
+          npx --yes eslint app.js \
+            --no-eslintrc \
+            --env browser \
+            --env es2021 \
+            --rule 'no-undef: warn' \
+            --rule 'no-unused-vars: warn'

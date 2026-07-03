@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrowthPilot AI — Small Business Growth Advisor</title>
+  <meta name="description" content="AI-powered growth advisor for small businesses. Analyze sales, get restocking recommendations, marketing ideas, and personalized growth plans." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Particle Background -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+  <div class="loading-logo">🚀</div>
+  <div class="loading-text">Analyzing Your Business…</div>
+  <div class="loading-sub" id="loading-step">Running financial models</div>
+  <div class="loading-spinner"></div>
+</div>
+
+<div id="app">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE 1: Business Type Selection
+       ══════════════════════════════════════════════════ -->
+  <section id="page-landing" class="page active">
+    <div class="landing-header">
+      <div class="logo-badge"><span class="dot"></span> GrowthPilot AI</div>
+      <h1 class="landing-title">Grow Your Business<br>With AI Insights</h1>
+      <p class="landing-subtitle">Your personal AI growth advisor — get tailored sales forecasts, marketing strategies, and actionable plans in seconds.</p>
+      <p class="step-label">Step 1 of 2 — Select Your Business Type</p>
+    </div>
+
+    <div class="business-grid" id="biz-grid">
+      <!-- Injected by JS -->
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE 2: Data Input Form
+       ══════════════════════════════════════════════════ -->
+  <section id="page-form" class="page">
+    <div class="form-container">
+      <div class="form-header">
+        <button class="back-btn" id="back-to-landing">← Back</button>
+        <div id="form-biz-badge" class="biz-badge"></div>
+        <h2 class="form-title">Tell Us About Your <span id="form-biz-name">Business</span></h2>
+        <p class="form-desc">We'll analyze your data and create a personalized growth strategy.</p>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar" id="form-progress"></div>
+      </div>
+      <div class="progress-label"><span id="progress-pct">0%</span> complete</div>
+
+      <form id="data-form" novalidate>
+
+        <!-- Financials -->
+        <div class="form-section">
+          <div class="section-title">
+            <div class="section-icon">💰</div>
+            Financial Overview
+          </div>
+          <div class="form-row">
+            <div class="field-wrap">
+              <input type="number" class="form-input" id="monthly-sales" placeholder=" " min="0" />
+              <label for="monthly-sales">Monthly Sales Revenue (₹)</label>
+            </div>
+            <div class="field-wrap">
+              <input type="number" class="form-input" id="monthly-expenses" placeholder=" " min="0" />
+              <label for="monthly-expenses">Monthly Expenses (₹)</label>
+            </div>
+          </div>
+          <!-- Live Margin Display -->
+          <div class="margin-display">
+            <div class="margin-stat">
+              <div class="val" id="live-profit" style="color:#10b981">₹0</div>
+              <div class="lbl">Net Profit</div>
+            </div>
+            <div class="margin-stat">
+              <div class="val" id="live-margin" style="color:#06b6d4">0%</div>
+              <div class="lbl">Profit Margin</div>
+            </div>
+            <div class="margin-stat">
+              <div class="val" id="live-breakeven" style="color:#a855f7">₹0</div>
+              <div class="lbl">Break-even</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="form-section">
+          <div class="section-title">
+            <div class="section-icon">📦</div>
+            Inventory
+          </div>
+          <div class="form-row">
+            <div class="field-wrap">
+              <input type="number" class="form-input" id="num-products" placeholder=" " min="0" />
+              <label for="num-products">Number of Products in Stock</label>
+            </div>
+            <div class="field-wrap">
+              <input type="number" class="form-input" id="stock-value" placeholder=" " min="0" />
+              <label for="stock-value">Total Inventory Value (₹)</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products -->
+        <div class="form-section">
+          <div class="section-title">
+            <div class="section-icon">⭐</div>
+            Your Products
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">
+              🔥 Best-Selling Products <span style="color:var(--text-muted);font-weight:400;">(up to 5)</span>
+            </div>
+            <div class="tag-input-wrap" id="best-tags-wrap">
+              <input type="text" class="tag-input" id="best-input" placeholder="Type & press Enter…" />
+            </div>
+            <div class="tag-hint">Press Enter or comma to add a product</div>
+          </div>
+
+          <div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">
+              🐌 Slow-Selling Products <span style="color:var(--text-muted);font-weight:400;">(up to 5)</span>
+            </div>
+            <div class="tag-input-wrap" id="slow-tags-wrap">
+              <input type="text" class="tag-input" id="slow-input" placeholder="Type & press Enter…" />
+            </div>
+            <div class="tag-hint">Press Enter or comma to add a product</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-analyze" id="analyze-btn">
+          🤖 Analyze My Business &amp; Generate Growth Plan →
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE 3: Dashboard
+       ══════════════════════════════════════════════════ -->
+  <section id="page-dashboard" class="page">
+    <div class="dashboard-container">
+
+      <!-- Header -->
+      <div class="dash-header">
+        <div>
+          <div id="dash-biz-badge" class="biz-badge" style="margin-bottom:10px;"></div>
+          <h2 class="dash-title"><span>AI Growth Dashboard</span></h2>
+          <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;" id="dash-subtitle"></div>
+        </div>
+        <div class="dash-actions">
+          <button class="btn-outline" id="restart-btn">🔄 Start Over</button>
+          <button class="btn-primary-sm" id="download-btn">⬇ Download Report</button>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="metrics-row" id="metrics-row">
+        <!-- Injected by JS -->
+      </div>
+
+      <div class="dash-grid">
+
+        <!-- Business Health Score -->
+        <div class="panel col-left" id="health-panel">
+          <div class="panel-title">💚 Business Health Score</div>
+          <div class="panel-subtitle">Overall analysis of your business performance</div>
+          <div class="health-wrap">
+            <div class="gauge-container">
+              <canvas id="gauge-canvas" class="gauge-canvas" width="160" height="160"></canvas>
+              <div class="gauge-center">
+                <div class="gauge-score" id="gauge-score">0</div>
+                <div class="gauge-label">/ 100</div>
+              </div>
+            </div>
+            <div class="health-details" id="health-details">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Insights Chart -->
+        <div class="panel col-right">
+          <div class="panel-title">📊 Sales Insights</div>
+          <div class="panel-subtitle">Revenue, expenses, and profit breakdown</div>
+          <div class="chart-wrap">
+            <canvas id="bar-chart" width="400" height="220"></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Revenue</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Expenses</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Profit</div>
+          </div>
+        </div>
+
+        <!-- Restock Recommendations -->
+        <div class="panel col-left">
+          <div class="panel-title">📦 Restock Recommendations</div>
+          <div class="panel-subtitle">Smart inventory actions based on your product data</div>
+          <div class="restock-list" id="restock-list">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Marketing Ideas -->
+        <div class="panel col-right">
+          <div class="panel-title">📣 Marketing Ideas</div>
+          <div class="panel-subtitle">Strategies tailored for your business type</div>
+          <div class="marketing-grid" id="marketing-grid">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Sales Forecast -->
+        <div class="panel col-wide">
+          <div class="panel-title">📈 6-Month Sales Forecast</div>
+          <div class="panel-subtitle">Projected revenue trajectory based on current performance</div>
+          <div class="scenario-tabs" id="scenario-tabs">
+            <button class="scenario-tab active" data-scenario="realistic">📊 Realistic</button>
+            <button class="scenario-tab" data-scenario="optimistic">🚀 Optimistic (+25%)</button>
+            <button class="scenario-tab" data-scenario="conservative">⚠️ Conservative (-15%)</button>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="forecast-chart" width="800" height="220"></canvas>
+          </div>
+          <div id="forecast-stats" style="display:flex;gap:24px;flex-wrap:wrap;margin-top:14px;">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Growth Plans -->
+        <div class="panel col-wide">
+          <div class="panel-title">🗓️ Growth Plans</div>
+          <div class="panel-subtitle">Actionable plans to achieve sustainable growth</div>
+          <div class="plan-tabs">
+            <button class="plan-tab active" id="tab-weekly">📅 Weekly Action Plan</button>
+            <button class="plan-tab" id="tab-monthly">📆 Monthly Roadmap</button>
+          </div>
+
+          <!-- Weekly Plan -->
+          <div class="weekly-plan-wrap active" id="weekly-wrap">
+            <div class="weekly-plan" id="weekly-plan">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+
+          <!-- Monthly Plan -->
+          <div class="monthly-plan" id="monthly-plan">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+      </div><!-- /dash-grid -->
+    </div>
+  </section>
+
+</div><!-- /#app -->
+
+<script src="app.js"></script>
+</body>
+</html>
